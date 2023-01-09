@@ -1,8 +1,8 @@
 varsion: "3"
 services:
-    client:
+    main:
         container_name: my_client
-        build: ./client/
+        build: ./main/
         tty: true
         stdin_open: true
         depends_on:
