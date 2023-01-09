@@ -1,31 +1,34 @@
 version: "3"
 services:
-    main:
-        container_name: my_client
-        build: ./main/
-        tty: true
-        stdin_open: true
-        depends_on:
-            redis_server:
-                condition: service_healthy
+  app_main:
+    build:
+      context: ./main
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      redis:
+        condition: service_healthy
+    stdin_open: true
+    tty: true
                 
-    worker:
-        container_name: my_worker
-        build: ./worker/
-        tty: true
-        stdin_open: true
-        depends_on:
-            redis_server:
-                condition: service_healthy
+  app_worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - redis
+      - app_main
+    tty: true
                 
-    redis_server:
-        container_name: my_redis
-        image: redis:alpine
-        restart: always
-        ports:
-            - "127.0.0.1:6379:6379"
-        healthcheck:
-            test: curl -sS http://127.0.0.1 || echo 1
-            interval: 5s
-            timeout: 5s
-            retries: 5
+  redis_server:
+    container_name: my_redis
+    image: redis:alpine
+    restart: always
+    ports:
+        - "127.0.0.1:6379:6379"
+    healthcheck:
+        test: curl -sS http://127.0.0.1 || echo 1
+        interval: 5s
+        timeout: 5s
+        retries: 5
